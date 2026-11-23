@@ -1,0 +1,83 @@
+name: Build TimesQuest APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 8.10.2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Cache persistent APK signing keystore
+        uses: actions/cache@v4
+        with:
+          path: signing/release.jks
+          key: times-quest-signing-keystore-v1
+
+      - name: Ensure signing keystore exists
+        run: |
+          mkdir -p signing
+          if [ ! -f signing/release.jks ]; then
+            keytool -genkeypair -v \
+              -keystore signing/release.jks \
+              -storetype PKCS12 \
+              -alias timesquest \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass timesquest123 -keypass timesquest123 \
+              -dname "CN=TimesQuest, OU=KidsMath, O=SelfUse, L=CN, ST=CN, C=CN"
+          fi
+
+      - name: Run unit tests
+        run: gradle testDebugUnitTest --no-daemon --stacktrace
+
+      - name: Build signed Release APK
+        run: |
+          gradle assembleRelease --no-daemon --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk "TimesQuest-v1.0.${GITHUB_RUN_NUMBER}.apk"
+          ls -lh "TimesQuest-v1.0.${GITHUB_RUN_NUMBER}.apk"
+
+      - name: Upload APK to Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TimesQuest-APK
+          path: TimesQuest-v1.0.${{ github.run_number }}.apk
+          if-no-files-found: error
+
+      - name: Publish APK to GitHub Releases
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "口诀大冒险 v1.0.${{ github.run_number }}（乘法口诀奇幻打怪 RPG）"
+          body: |
+            ### 《口诀大冒险》v1.0.${{ github.run_number }}
+            专为 8 岁二年级小朋友打造的纯本地离线乘法口诀打怪闯关 RPG（无广告、免登录）。
+            - **9 大奇幻群岛 × 36 关 + 无尽勇者塔**：覆盖 1~9 全部乘法口诀，支持新手起航与 6 题摸底直达推荐岛屿。
+            - **5 种 RPG 战斗玩法**：极速魔法弹暴击、精英破盾逆向咒（`□ × 7 = 42`）、符文键盘终极奥义、等积泡泡/双怪比大小特训、Boss 狂暴弹反 QTE。
+            - **高爽感音画演出**：NanoBanana 定制奇幻萌怪原画 + 魔法弹道粒子/震屏/连击升调五声音阶合成音效 + 中文 TTS 朗读口诀 + 答错宝石点阵可视化拆解与「复仇重测」。
+            - **成长与收集**：勇者升级、5 把特效法杖、4 套勇者装扮、4 只协击萌宠、18 种怪物图鉴、每日悬赏与连签宝箱。
+            - **家长守护中心**：家长数学锁、9×9 薄弱口诀热力图与自适应复习、每日 15 分钟/3 关护眼休息营地。
+          files: TimesQuest-v1.0.${{ github.run_number }}.apk
+          make_latest: true
