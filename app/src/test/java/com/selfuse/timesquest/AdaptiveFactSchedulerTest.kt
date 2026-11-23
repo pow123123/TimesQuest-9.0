@@ -18,6 +18,8 @@ class AdaptiveFactSchedulerTest {
         assertEquals("一一得一", CurriculumCatalog.chineseRhyme(1, 1))
         assertEquals("二三得六", CurriculumCatalog.chineseRhyme(3, 2))
         assertEquals("二五一十", CurriculumCatalog.chineseRhyme(5, 2))
+        assertEquals("三四十二", CurriculumCatalog.chineseRhyme(4, 3))
+        assertEquals("二九十八", CurriculumCatalog.chineseRhyme(9, 2))
         assertEquals("三七二十一", CurriculumCatalog.chineseRhyme(7, 3))
         assertEquals("六八四十八", CurriculumCatalog.chineseRhyme(8, 6))
         assertEquals("七八五十六", CurriculumCatalog.chineseRhyme(7, 8))

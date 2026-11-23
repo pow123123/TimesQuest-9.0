@@ -20,7 +20,7 @@ object CurriculumCatalog {
         return when {
             p < 10 -> "${prefix}得${CHINESE_DIGITS[p]}"
             p == 10 -> "${prefix}一十"
-            p < 20 -> "${prefix}一十${CHINESE_DIGITS[p % 10]}"
+            p < 20 -> "${prefix}十${CHINESE_DIGITS[p % 10]}"
             p % 10 == 0 -> "${prefix}${CHINESE_DIGITS[p / 10]}十"
             else -> "${prefix}${CHINESE_DIGITS[p / 10]}十${CHINESE_DIGITS[p % 10]}"
         }

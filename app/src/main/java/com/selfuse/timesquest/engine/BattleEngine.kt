@@ -558,7 +558,11 @@ class BattleEngine(
 
         // When Ultimate Energy hits 100%, immediately let the hero cast their Rune Keypad Ultimate!
         if (nextUltCharge >= 100 && upcoming !is BattleQuestion.KeypadUltimate) {
-            return AdaptiveFactScheduler.buildUltimateKeypad(upcoming.factKey, random)
+            return AdaptiveFactScheduler.buildUltimateKeypad(
+                key = upcoming.factKey,
+                isRevenge = upcoming.isRevenge,
+                random = random
+            )
         }
 
         // Boss Enrage Counter QTE #2 triggers around 28% HP (after Ultimate has fired)

@@ -155,6 +155,7 @@ object AdaptiveFactScheduler {
      */
     fun buildUltimateKeypad(
         key: FactKey,
+        isRevenge: Boolean = false,
         random: Random = Random.Default
     ): BattleQuestion.KeypadUltimate {
         val (a, b) = orientFactors(key, random)
@@ -162,7 +163,8 @@ object AdaptiveFactScheduler {
             factKey = key,
             leftFactor = a,
             rightFactor = b,
-            isUltimateCast = true
+            isUltimateCast = true,
+            isRevenge = isRevenge
         )
     }
 
